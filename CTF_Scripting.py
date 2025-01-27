@@ -376,7 +376,7 @@ def flag11(cnct, statement):
             if decrypted in words.words():
                 bestWord = decrypted
                 break
-        if not bestWord:
+        if bestWord is None:
             Exception("Aucun mot trouvé.")
         print(f"Meilleur mot : {bestWord}")
         cnct.sendall(bestWord.encode())
