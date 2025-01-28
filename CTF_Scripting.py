@@ -1,17 +1,13 @@
-import socket
-import datetime
-import base64
-from base58 import b58decode
-import webcolors
-import re
-import string
-from collections import Counter
-import nltk
-from nltk.corpus import words
-from dotenv import load_dotenv
-import os
-from math import gcd
-
+import socket                   # Pour la connexion
+import datetime                 # Pour question 2
+import base64                   # Pour les décodages
+from base58 import b58decode    # Pour les décodages aussi
+import webcolors                # Pour la question 7 (conversion RGB en nom de couleur)
+import re                       # Pour la question 9 (récupérer la lettre à la position donnée)
+import string                   # Pour les décodages
+from nltk.corpus import words   # Pour la question 11 (verifier si mot est dans le dico anglais)
+from dotenv import load_dotenv  # Pour les variables d'environnement
+import os                       # Pour les variables d'environnement aussi
 
 ##################################################################
 ###########                                      #################
@@ -34,11 +30,11 @@ def connexion():
     print(f"Connexion au serveur {host}:{port}")
     
     try: 
-        connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connect.connect((host, port))
+        connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Création du socket
+        connect.connect((host, port)) # Connexion au serveur
         print(f"Connexion établie")
         print(f"~~~~~~~~~~~~~~~~\n")
-        answer = connect.recv(1024).decode()
+        answer = connect.recv(1024).decode() # Réception de reponse du serveur
         print(answer)
         return connect
     
@@ -86,7 +82,7 @@ def decode_message(message):
         'base32': base64.b32decode,
         'base85': base64.b85decode,
         'base58': b58decode
-        }
+        } # Dictionnaire des fonctions de décodage
         
         for encoding, decoder in decoders.items():
             try:
@@ -115,7 +111,7 @@ def morse_to_text(morse):
     }
     try:
         letters = morse.split() 
-        decoded_word = ''.join(morseDict.get(letter, '?') for letter in letters)
+        decoded_word = ''.join(morseDict.get(letter, '?') for letter in letters) # On récupère la lettre correspondante dans le dictionnaire 
         return ''.join(decoded_word)
     except Exception as e:
         print(f"Erreur lors de la conversion Morse à texte : {e}")
@@ -138,7 +134,7 @@ def decode_braille(braille):
     }
     try: 
         letters = braille.split()
-        decoded_word = ''.join(brailleDict.get(letter, '?') for letter in letters)
+        decoded_word = ''.join(brailleDict.get(letter, '?') for letter in letters) # On récupère la lettre correspondante dans le dictionnaire
         return ''.join(decoded_word)
     except Exception as e:
         print(f"Erreur lors de la conversion Braille à texte : {e}")
@@ -153,9 +149,10 @@ def rgb_to_name(rgb):
     value = rgb.strip("RGB()").split(",")
     r, g, b = map(int, value)
     try:
-        return webcolors.rgb_to_name((r, g, b))
+        return webcolors.rgb_to_name((r, g, b)) # On récupère le nom de la couleur
     except ValueError:
         print("Erreur lors de la conversion RGB en nom de couleur.")
+        exit()
 
 def decrypt_cesar(text, key):
     """
@@ -167,18 +164,22 @@ def decrypt_cesar(text, key):
     lowercaseAlphabet = string.ascii_lowercase
     uppercaseAlphabet = string.ascii_uppercase
     decryptedText = []
-
-    for el in text:
-        if el in lowercaseAlphabet:  
-            newChar = (lowercaseAlphabet.index(el) - key) % 26
-            decryptedText.append(lowercaseAlphabet[newChar])
-        elif el in uppercaseAlphabet:  
-            newChar = (uppercaseAlphabet.index(el) - key) % 26
-            decryptedText.append(uppercaseAlphabet[newChar])
-        else: 
-            decryptedText.append(el)
     
-    return ''.join(decryptedText)
+    try:
+        for el in text: 
+            if el in lowercaseAlphabet:  
+                newChar = (lowercaseAlphabet.index(el) - key) % 26 # On décale la lettre de la clé
+                decryptedText.append(lowercaseAlphabet[newChar])
+            elif el in uppercaseAlphabet:  
+                newChar = (uppercaseAlphabet.index(el) - key) % 26
+                decryptedText.append(uppercaseAlphabet[newChar])
+            else: 
+                decryptedText.append(el)
+
+        return ''.join(decryptedText)
+    except Exception as e:
+        print(f"Erreur lors du décryptage du message : {e}")
+        exit()
 
 def bruteforce_cesar(text):
     """ 
@@ -187,16 +188,19 @@ def bruteforce_cesar(text):
     :param text: string
     :return bestWord: string
     """ 
-    bestWord = None
-    for i in range(26):
-        decrypted = decrypt_cesar(text, i)
-        if decrypted in words.words():
-            bestWord = decrypted
-            break
-    if bestWord is None:
-        Exception("Aucun mot trouvé.")
-    return bestWord
-
+    try:
+        bestWord = None
+        for i in range(26): # Test de toutes les clés possibles 
+            decrypted = decrypt_cesar(text, i) 
+            if decrypted in words.words():
+                bestWord = decrypted
+                break
+        if bestWord is None:
+            Exception("Aucun mot trouvé.")
+        return bestWord
+    except Exception as e:
+        print(f"Erreur lors du décryptage du message : {e}")
+        exit()
 
 
 #################################################################
@@ -215,12 +219,13 @@ def flag1(cnct):
     """
     try: 
         answer = "celian/pinquier/3si2"
-        cnct.sendall(answer.encode())
+        cnct.sendall(answer.encode()) # Envoi de la réponse
         print(f"Réponse envoyée : {answer}")
         wait_answer(cnct)
         return answer
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 
 def flag2(cnct):
     """
@@ -231,12 +236,13 @@ def flag2(cnct):
     :return date: string
     """
     try: 
-        date = datetime.datetime.now().strftime("%d/%m")
+        date = datetime.datetime.now().strftime("%d/%m") # Récupération de la date format jour/mois
         cnct.sendall(date.encode())
         print(f"Réponse envoyée : {date}")
         return wait_answer(cnct), date
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
         
 def flag3(cnct, statement):
     """
@@ -250,7 +256,7 @@ def flag3(cnct, statement):
     try: 
         cleananswer = statement.split("résultat de ")[1]
         cleananswer = cleananswer.split(" ?")[0]
-        oper1, signe, oper2 = cleananswer.split(" ")
+        oper1, signe, oper2 = cleananswer.split(" ") # On récupère les opérandes et le signe
         print(f"Calcul : {oper1} {signe} {oper2}")
         if signe == "+":
             answer = int(oper1) + int(oper2)
@@ -263,6 +269,7 @@ def flag3(cnct, statement):
         return wait_answer(cnct), answer
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 
 def flag4(cnct, statement):
     """
@@ -273,12 +280,16 @@ def flag4(cnct, statement):
     :return wait_answer(cnct): string
     :return decodedanswer: string
     """
-    cleanAwser = statement.split(" ")[-1]
-    decodedanswer = decode_message(cleanAwser)
-    if decodedanswer:
-        cnct.sendall(str(decodedanswer).encode())
-        print(f"Réponse envoyée : {decodedanswer}")
-        return wait_answer(cnct), decodedanswer
+    try:
+        cleanAwser = statement.split(" ")[-1]
+        decodedanswer = decode_message(cleanAwser)
+        if decodedanswer:
+            cnct.sendall(str(decodedanswer).encode())
+            print(f"Réponse envoyée : {decodedanswer}")
+            return wait_answer(cnct), decodedanswer
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 
 def flag5(cnct, statement):
     """
@@ -292,15 +303,14 @@ def flag5(cnct, statement):
 
     try:
         cleanAwser = statement.split(" ")[-1] 
-        # Convertis de hexa à texte
-        decodedanswer = bytes.fromhex(cleanAwser).decode('utf-8')
-        # Convertis de morse à texte
+        decodedanswer = bytes.fromhex(cleanAwser).decode('utf-8') # Convertis de hexa à texte
         finalAnswer = morse_to_text(decodedanswer)
         cnct.sendall(finalAnswer.encode())
         print(f"Réponse décodée : {finalAnswer}")
         return wait_answer(cnct), finalAnswer
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 
 def flag6(cnct, statement):
     """
@@ -437,7 +447,6 @@ def flag12(cnct, statement):
     """
     Fonction permettant de répondre à la question 12
     Concretement, on va décoder le message dans cet ordre: Base (64, 32, 85, 58) -> César -> Base (64, 32, 85, 58) -> vérification de la présence du mot dans le dico -> ggwp
-    puis rappeler decode_message si nécessaire.
     :param cnct: socket
     :param statement: string
     :return wait_answer(cnct): string
@@ -474,18 +483,22 @@ def flag12(cnct, statement):
     
 if __name__ == "__main__":
     responses = {}
-    cnct = connexion()
-    
-    if cnct:
-        responses[1] = flag1(cnct)
-        statement2, responses[2] = flag2(cnct)
-        statement3, responses[3] = flag3(cnct, statement2)
-        statement4, responses[4] = flag4(cnct, statement3) 
-        statement5, responses[5] = flag5(cnct, statement4)
-        statement6, responses[6] = flag6(cnct, statement5)
-        statement7, responses[7] = flag7(cnct, statement6)
-        statement8, responses[8] = flag8(cnct, statement7, responses)
-        statement9, responses[9] = flag9(cnct, statement8)
-        statement10 = flag10(cnct, statement9, responses)
-        statement11 = flag11(cnct, statement10)  
-        statement12 = flag12(cnct, statement11)
+    try:
+        cnct = connexion()
+        
+        if cnct:
+            responses[1] = flag1(cnct)
+            statement2, responses[2] = flag2(cnct)
+            statement3, responses[3] = flag3(cnct, statement2)
+            statement4, responses[4] = flag4(cnct, statement3) 
+            statement5, responses[5] = flag5(cnct, statement4)
+            statement6, responses[6] = flag6(cnct, statement5)
+            statement7, responses[7] = flag7(cnct, statement6)
+            statement8, responses[8] = flag8(cnct, statement7, responses)
+            statement9, responses[9] = flag9(cnct, statement8)
+            statement10 = flag10(cnct, statement9, responses)
+            statement11 = flag11(cnct, statement10)  
+            statement12 = flag12(cnct, statement11)
+    except Exception as e:
+        print(f"Erreur inattendue lors de l'exécution principale : {e}")
+        exit()
