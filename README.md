@@ -21,9 +21,12 @@ Ce projet contient des scripts et des fichiers pour résoudre des challenges CTF
 4. Lancez le conteneur avec la commande :
    ```bash
    docker build -t exam_ctf .
-   docker run -it exam_ctf
+   docker run --rm -it exam_ctf
    ```
-
+5. Dans le cas ou une erreur se produit, relancez le conteneur avec la commande :
+   ```bash
+   docker run --rm -it exam_ctf
+   ```
 
 ## Auteur
 
