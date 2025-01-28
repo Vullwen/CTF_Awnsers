@@ -502,3 +502,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Erreur inattendue lors de l'exécution principale : {e}")
         exit()
+    finally:
+        cnct.close()
+        print("Connexion fermée, CTF terminé.")
+        exit()
