@@ -1,6 +1,6 @@
 # Exam CTF
 
-Ce projet contient des scripts et des fichiers pour résoudre des challenges CTF.
+Ce projet contient des scripts et des fichiers pour résoudre le challenge CTF de Scripting Python Cybersécurité.
 
 ## Contenu
 
