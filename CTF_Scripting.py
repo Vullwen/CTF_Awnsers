@@ -274,7 +274,7 @@ def flag3(cnct, statement):
 def flag4(cnct, statement):
     """
     Fonction permettant de répondre à la question 4
-    Il faut décoder un message (je ne comprend pas excepé b64 et b32 pour le moment)
+    Il faut décoder un message
     :param cnct: socket
     :param statement: string
     :return wait_answer(cnct): string
